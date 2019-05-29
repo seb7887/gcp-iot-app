@@ -1,13 +1,28 @@
 const mqtt = require('mqtt');
-const { broker } = require('../config');
+const createJwt = require('../jwt');
+const config = require('../config');
+const { projectId, regionId, registryId, deviceId, messageType } = config;
 
-const client = mqtt.connect(broker);
+const mqttClientId = `projects/${projectId}/locations/${regionId}/registries/${registryId}/devices/${deviceId}`;
+const mqttTopic = `/devices/${deviceId}/${messageType}`;
+
+const connectionsArgs = {
+  host: config.mqttHost,
+  port: config.mqttPort,
+  clientId: mqttClientId,
+  username: 'unused',
+  password: createJwt(projectId, config.algorithm),
+  protocol: 'mqtts',
+  secureProtocol: 'TLSv1_2_method'
+};
+
+const client = mqtt.connect(connectionsArgs);
 
 let intervalId;
 
 exports.connect = () => {
   client.on('connect', () => {
-    client.subscribe('mytopic', { qos: 0 });
+    client.subscribe(mqttTopic, { qos: 0 });
     client.subscribe('configtopic', { qos: 1 });
     console.log('MQTT: Device Connected');
   });
@@ -25,7 +40,11 @@ exports.connect = () => {
 const getInfo = () => {
   return JSON.stringify({
     temperature: Math.floor(Math.random() * 35),
-    humidity: Math.floor(Math.random() * 100)
+    humidity: Math.floor(Math.random() * 100),
+    time: new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace('T', ' ')
   });
 };
 
@@ -40,7 +59,7 @@ exports.loop = () => {
   let delay = 2000;
 
   client.on('message', (topic, message) => {
-    if (topic === 'mytopic') {
+    if (topic === mqttTopic) {
       console.log('Message: ' + message.toString());
     }
     if (topic === 'configtopic') {
@@ -55,5 +74,5 @@ exports.loop = () => {
 };
 
 exports.publishData = message => {
-  client.publish('mytopic', message);
+  client.publish(mqttTopic, message);
 };

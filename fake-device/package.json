@@ -10,6 +10,7 @@
   "author": "Sebastian Matias Segura (@seb7887)",
   "license": "ISC",
   "dependencies": {
+    "jsonwebtoken": "^8.5.1",
     "mqtt": "^3.0.0"
   },
   "devDependencies": {
