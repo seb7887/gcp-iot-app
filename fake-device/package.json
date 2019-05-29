@@ -1,0 +1,18 @@
+{
+  "name": "fake-device",
+  "version": "1.0.0",
+  "description": "Fake Device for testing Google Cloud IoT Core",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "author": "Sebastian Matias Segura (@seb7887)",
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
