@@ -1,19 +1,26 @@
 const mqtt = require('mqtt');
+const path = require('path');
+const fs = require('fs');
 const createJwt = require('../jwt');
 const config = require('../config');
 const { projectId, regionId, registryId, deviceId, messageType } = config;
 
 const mqttClientId = `projects/${projectId}/locations/${regionId}/registries/${registryId}/devices/${deviceId}`;
 const mqttTopic = `/devices/${deviceId}/${messageType}`;
+const rootCertificate = fs.readFileSync(
+  path.join(__dirname, config.rootCertificateFile)
+);
 
 const connectionsArgs = {
   host: config.mqttHost,
   port: config.mqttPort,
   clientId: mqttClientId,
   username: 'unused',
-  password: createJwt(projectId, config.algorithm),
+  password: createJwt(projectId, config.privateKeyFile, config.algorithm),
   protocol: 'mqtts',
-  secureProtocol: 'TLSv1_2_method'
+  secureProtocol: 'TLSv1_2_method',
+  rejectUnauthorized: true,
+  ca: rootCertificate
 };
 
 const client = mqtt.connect(connectionsArgs);
@@ -23,7 +30,7 @@ let intervalId;
 exports.connect = () => {
   client.on('connect', () => {
     client.subscribe(mqttTopic, { qos: 0 });
-    client.subscribe('configtopic', { qos: 1 });
+    //client.subscribe('configtopic', { qos: 1 });
     console.log('MQTT: Device Connected');
   });
 
