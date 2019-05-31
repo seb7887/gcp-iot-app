@@ -13,6 +13,7 @@
     "node": ">=8.13.0"
   },
   "scripts": {
+    "start": "node cloudiot_mqtt_example_nodejs.js mqttDeviceDemo --projectId=gcp-iot-app --cloudRegion=us-central1 --registryId=gcp-iot-registry --deviceId=fake --privateKeyFile=rsa_private.pem --algorithm=RS256",
     "test": "repo-tools test install --cmd=npm -- run system-test",
     "system-test": "mocha system-test/*.test.js --timeout=600000"
   },

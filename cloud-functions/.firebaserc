@@ -1,1 +1,7 @@
-{}
+{
+  "projects": {
+    "fb": "example-acd78",
+    "default": "example-acd78",
+    "gcp": "gcp-iot-app"
+  }
+}

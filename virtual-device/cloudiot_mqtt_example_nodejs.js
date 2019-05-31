@@ -44,57 +44,57 @@ const argv = require(`yargs`)
       description:
         'The Project ID to use. Defaults to the value of the GCLOUD_PROJECT or GOOGLE_CLOUD_PROJECT environment variables.',
       requiresArg: true,
-      type: 'string',
+      type: 'string'
     },
     cloudRegion: {
       default: 'us-central1',
       description: 'GCP cloud region.',
       requiresArg: true,
-      type: 'string',
+      type: 'string'
     },
     registryId: {
       description: 'Cloud IoT registry ID.',
       requiresArg: true,
       demandOption: true,
-      type: 'string',
+      type: 'string'
     },
     deviceId: {
       description: 'Cloud IoT device ID.',
       requiresArg: true,
       demandOption: true,
-      type: 'string',
+      type: 'string'
     },
     privateKeyFile: {
       description: 'Path to private key file.',
       requiresArg: true,
       demandOption: true,
-      type: 'string',
+      type: 'string'
     },
     algorithm: {
       description: 'Encryption algorithm to generate the JWT.',
       requiresArg: true,
       demandOption: true,
       choices: ['RS256', 'ES256'],
-      type: 'string',
+      type: 'string'
     },
     tokenExpMins: {
       default: 20,
       description: 'Minutes to JWT token expiration.',
       requiresArg: true,
-      type: 'number',
+      type: 'number'
     },
     mqttBridgeHostname: {
       default: 'mqtt.googleapis.com',
       description: 'MQTT bridge hostname.',
       requiresArg: true,
-      type: 'string',
+      type: 'string'
     },
     mqttBridgePort: {
       default: 8883,
       description: 'MQTT bridge port.',
       requiresArg: true,
-      type: 'number',
-    },
+      type: 'number'
+    }
   })
   .command(
     `mqttDeviceDemo`,
@@ -105,14 +105,14 @@ const argv = require(`yargs`)
         description: 'Message type to publish.',
         requiresArg: true,
         choices: ['events', 'state'],
-        type: 'string',
+        type: 'string'
       },
       numMessages: {
         default: 10,
         description: 'Number of messages to publish.',
         demandOption: true,
-        type: 'number',
-      },
+        type: 'number'
+      }
     },
     opts => {
       mqttDeviceDemo(
@@ -137,14 +137,14 @@ const argv = require(`yargs`)
         description: 'Cloud IoT gateway ID.',
         requiresArg: true,
         demandOption: true,
-        type: 'string',
+        type: 'string'
       },
       numMessages: {
         default: 10,
         description: 'Number of messages to publish.',
         demandOption: true,
-        type: 'number',
-      },
+        type: 'number'
+      }
     },
     opts => {
       sendDataFromBoundDevice(
@@ -170,14 +170,14 @@ const argv = require(`yargs`)
         description: 'Cloud IoT gateway ID.',
         requiresArg: true,
         demandOption: true,
-        type: 'string',
+        type: 'string'
       },
       clientDuration: {
         default: 60000,
         description: 'Duration in milliseconds for MQTT client to run.',
         requiresArg: true,
-        type: 'number',
-      },
+        type: 'number'
+      }
     },
     opts => {
       listenForConfigMessages(
@@ -202,14 +202,14 @@ const argv = require(`yargs`)
         description: 'Cloud IoT gateway ID.',
         requiresArg: true,
         demandOption: true,
-        type: 'string',
+        type: 'string'
       },
       clientDuration: {
         default: 60000,
         description: 'Duration in milliseconds for MQTT client to run.',
         requiresArg: true,
-        type: 'number',
-      },
+        type: 'number'
+      }
     },
     opts => {
       listenForErrorMessages(
@@ -254,21 +254,21 @@ function createJwt(projectId, privateKeyFile, algorithm) {
   const token = {
     iat: parseInt(Date.now() / 1000),
     exp: parseInt(Date.now() / 1000) + 20 * 60, // 20 minutes
-    aud: projectId,
+    aud: projectId
   };
   const privateKey = fs.readFileSync(privateKeyFile);
-  return jwt.sign(token, privateKey, {algorithm: algorithm});
+  return jwt.sign(token, privateKey, { algorithm: algorithm });
 }
 // [END iot_mqtt_jwt]
 
 const getInfo = () => {
   return JSON.stringify({
-    temperature: Math.floor(Math.random() * 35),
-    humidity: Math.floor(Math.random() * 100),
+    temperature: Math.random() * 100,
+    humidity: Math.random() * 100,
     time: new Date()
       .toISOString()
       .slice(0, 19)
-      .replace('T', ' '),
+      .replace('T', ' ')
   });
 };
 
@@ -309,7 +309,7 @@ function publishAsync(
     // Publish "payload" to the MQTT topic. qos=1 means at least once delivery.
     // Cloud IoT Core also supports qos=0 for at most once delivery.
     console.log('Publishing message:', payload);
-    client.publish(mqttTopic, payload, {qos: 1}, err => {
+    client.publish(mqttTopic, payload, { qos: 1 }, err => {
       if (!err) {
         shouldBackoff = false;
         backoffTime = MINIMUM_BACKOFF_TIME;
@@ -424,7 +424,7 @@ function mqttDeviceDemo(
     username: 'unused',
     password: createJwt(projectId, privateKeyFile, algorithm),
     protocol: 'mqtts',
-    secureProtocol: 'TLSv1_2_method',
+    secureProtocol: 'TLSv1_2_method'
   };
 
   // Create a client, and connect to the Google MQTT bridge.
@@ -433,13 +433,13 @@ function mqttDeviceDemo(
 
   // Subscribe to the /devices/{device-id}/config topic to receive config updates.
   // Config updates are recommended to use QoS 1 (at least once delivery)
-  client.subscribe(`/devices/${deviceId}/config`, {qos: 1});
+  client.subscribe(`/devices/${deviceId}/config`, { qos: 1 });
 
   // Subscribe to the /devices/{device-id}/commands/# topic to receive all
   // commands or to the /devices/{device-id}/commands/<subfolder> to just receive
   // messages published to a specific commands folder; we recommend you use
   // QoS 0 (at most once delivery)
-  client.subscribe(`/devices/${deviceId}/commands/#`, {qos: 0});
+  client.subscribe(`/devices/${deviceId}/commands/#`, { qos: 0 });
 
   // The MQTT topic that this device will publish data to. The MQTT topic name is
   // required to be in the format below. The topic name must end in 'state' to
@@ -497,7 +497,7 @@ function attachDevice(deviceId, client, jwt) {
     attachPayload = `{ 'authorization' : ${jwt} }`;
   }
 
-  client.publish(attachTopic, attachPayload, {qos: 1}, err => {
+  client.publish(attachTopic, attachPayload, { qos: 1 }, err => {
     if (!err) {
       shouldBackoff = false;
       backoffTime = MINIMUM_BACKOFF_TIME;
@@ -518,7 +518,7 @@ function detachDevice(deviceId, client, jwt) {
     detachPayload = `{ 'authorization' : ${jwt} }`;
   }
 
-  client.publish(detachTopic, detachPayload, {qos: 1}, err => {
+  client.publish(detachTopic, detachPayload, { qos: 1 }, err => {
     if (!err) {
       shouldBackoff = false;
       backoffTime = MINIMUM_BACKOFF_TIME;
@@ -578,7 +578,7 @@ function publishAsyncGateway(
     // Publish "payload" to the MQTT topic. qos=1 means at least once delivery.
     // Cloud IoT Core also supports qos=0 for at most once delivery.
     console.log(`Publishing message: ${payload} to ${mqttTopic}`);
-    client.publish(mqttTopic, payload, {qos: 1}, err => {
+    client.publish(mqttTopic, payload, { qos: 1 }, err => {
       if (!err) {
         shouldBackoff = false;
         backoffTime = MINIMUM_BACKOFF_TIME;
@@ -650,7 +650,7 @@ function sendDataFromBoundDevice(
     password: createJwt(projectId, privateKeyFile, algorithm),
     protocol: 'mqtts',
     qos: 1,
-    secureProtocol: 'TLSv1_2_method',
+    secureProtocol: 'TLSv1_2_method'
   };
 
   // Create a client, and connect to the Google MQTT bridge.
@@ -739,7 +739,7 @@ function listenForConfigMessages(
     password: createJwt(projectId, privateKeyFile, algorithm),
     protocol: 'mqtts',
     qos: 1,
-    secureProtocol: 'TLSv1_2_method',
+    secureProtocol: 'TLSv1_2_method'
   };
 
   // Create a client, and connect to the Google MQTT bridge.
@@ -754,8 +754,8 @@ function listenForConfigMessages(
 
       setTimeout(() => {
         // Subscribe to any configuration topics.
-        client.subscribe(`/devices/${gatewayId}/config`, {qos: 1});
-        client.subscribe(`/devices/${deviceId}/config`, {qos: 1});
+        client.subscribe(`/devices/${gatewayId}/config`, { qos: 1 });
+        client.subscribe(`/devices/${deviceId}/config`, { qos: 1 });
 
         setTimeout(() => {
           detachDevice(deviceId, client);
@@ -826,7 +826,7 @@ function listenForErrorMessages(
     password: createJwt(projectId, privateKeyFile, algorithm),
     protocol: 'mqtts',
     qos: 1,
-    secureProtocol: 'TLSv1_2_method',
+    secureProtocol: 'TLSv1_2_method'
   };
 
   // Create a client, and connect to the Google MQTT bridge.
@@ -838,7 +838,7 @@ function listenForErrorMessages(
     } else {
       setTimeout(() => {
         // Subscribe to gateway error topic.
-        client.subscribe(`/devices/${gatewayId}/errors`, {qos: 0});
+        client.subscribe(`/devices/${gatewayId}/errors`, { qos: 0 });
 
         attachDevice(deviceId, client);
 
