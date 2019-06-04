@@ -58,3 +58,18 @@ bigquery.tablename="raw_data"
 ```
 
 ## Firestore Database
+
+## Emulators
+
+### Firestore
+
+```
+gcloud beta emulators firestore start
+```
+
+### Pubsub
+
+```
+gcloud beta emulators pubsub env-init
+gcloud beta emulators pubsub start
+```
