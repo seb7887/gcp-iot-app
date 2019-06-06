@@ -7,6 +7,7 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "test": "jest --watch",
+    "test:coverage": "jest --coverage",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
@@ -26,6 +27,7 @@
     "@types/jest": "^24.0.13",
     "firebase-functions-test": "^0.1.6",
     "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
     "tslint": "^5.12.0",
     "typescript": "^3.2.2"
   },

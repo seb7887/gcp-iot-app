@@ -24,10 +24,13 @@ const db = admin.firestore();
 
 // Store all raw data into BigQuery
 function insertIntoBigQuery(data: IMQTTData) {
-  const dataset = bigquery.dataset(functions.config().bigquery.datasetname);
-  const table = dataset.table(functions.config().bigquery.tablename);
+  const datasetId = 'datasetName';
+  const tableId = 'tableName';
 
-  return table.insert(data);
+  return bigquery
+    .dataset(datasetId)
+    .table(tableId)
+    .insert(data);
 }
 
 // Maintain last status in firestore
@@ -89,11 +92,14 @@ exports.dbUpdate = functions.firestore
       change: functions.Change<admin.firestore.DocumentSnapshot>,
       context?: functions.EventContext
     ) => {
-      if (context) {
-        console.log(context);
-        console.log('Firestore DB -> Change!');
-      } else {
-        throw Error('no context from trigger');
+      try {
+        if (context) {
+          console.log('Firestore DB -> Change!');
+        } else {
+          throw Error('no context from trigger');
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   );
@@ -101,12 +107,12 @@ exports.dbUpdate = functions.firestore
 // Query bigquery with the last 7 days of data
 // HTTP endpoint to be used by the webapp
 exports.getReportData = functions.https.onRequest((req, res) => {
-  const projectId = 'gcp-iot-app';
-  const datasetName = functions.config().bigquery.datasetname;
-  const tableName = functions.config().bigquery.tablename;
-  const table = `${projectId}.${datasetName}.${tableName}`;
+  const projectId: string = 'gcp-iot-app';
+  const datasetName: string = 'datasetName';
+  const tableName: string = 'tableName';
+  const table: string = `${projectId}.${datasetName}.${tableName}`;
 
-  const query = `
+  const query: string = `
     SELECT * FROM \`${table}\` LIMIT 1000
   `;
 
@@ -116,11 +122,11 @@ exports.getReportData = functions.https.onRequest((req, res) => {
       useLegacySql: false
     })
     .then(result => {
-      console.log(result);
       const rows = result[0];
 
       cors(req, res, () => {
         res.status(200).json(rows);
       });
-    });
+    })
+    .catch(err => console.log(err));
 });
